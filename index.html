@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="COPD turns natural-language advice from a black-box teacher into a capability the student keeps after the teacher is gone.">
+  <meta property="og:title" content="COPD — Communicative On-Policy Distillation">
+  <meta property="og:description" content="The student decides when to ask, gets answers in plain text, and distills its own successful consultations into independent execution.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/case_study.png">
+  <title>COPD — Communicative On-Policy Distillation</title>
+  <link rel="stylesheet" href="styles.css"><script src="script.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead"><div class="nav-wrap">
+  <a class="brand" href="#top" aria-label="COPD home"><svg viewBox="0 0 26 30" aria-hidden="true"><path d="M3 1h13l7 7v21H3zM16 1v8h7M8 15h10M8 20h10"/></svg>COPD</a>
+  <nav aria-label="Main navigation"><a href="#idea">The question</a><a href="#method">How it learns</a><a href="#evidence">Results</a><a href="#case">Case study</a></nav>
+  <a class="nav-paper" href="#paper">Paper <span aria-hidden="true">↗</span></a>
+</div></header>
+
+<main id="main">
+<section class="hero wrap" id="top" aria-labelledby="hero-title">
+  <div class="hero-grid">
+    <div class="hero-copy"><p class="project-name">Communicative On-Policy Distillation</p>
+      <h1 id="hero-title">Ask the teacher.<br>Then learn to<br>act alone.</h1>
+      <p class="lede">On-policy distillation needs teacher logits, and black-box models do not expose them. COPD talks to the teacher in plain language instead, and distills the advice the student itself obtained into a policy that no longer needs it.</p>
+      <div class="actions"><a class="button primary" href="assets/paper.pdf">Read the paper <span aria-hidden="true">↗</span></a><span class="button secondary">Code — coming soon</span></div>
+      <a class="text-link" href="#idea">What makes the asking hard? <span aria-hidden="true">↓</span></a>
+    </div>
+    <div class="memory-scene" aria-label="Illustration of one consultation turned into an independent policy">
+      <div class="scene-top"><span class="scene-caption">One exchange, then no channel.</span><span class="scene-mark" aria-hidden="true">↳</span></div>
+      <div class="file-bridge"><span class="bridge-stem" aria-hidden="true"></span><div class="memory-file"><div class="file-top"><svg viewBox="0 0 26 30" aria-hidden="true"><path d="M3 1h13l7 7v21H3zM16 1v8h7M8 15h10M8 20h8"/></svg><span>consultation<small>Student-initiated, free-form</small></span></div><div class="file-body"><p><span>Student</span>the main content area appears mostly empty</p><p><span>Teacher</span>Make content visible by default.</p><p><span>Kept</span>the successful trajectory, replies included</p></div></div><span class="bridge-caption">The reply is supervision only because the student asked for it.</span></div>
+      <p class="scene-footnote">Recorded Visual task from the paper. <a href="#case">See both deliveries ↗</a></p>
+    </div>
+  </div>
+  <div class="hero-result"><p><strong>59.8</strong><span>adviser-free average, COPD-4B</span></p><div class="result-divider"></div><p><strong>2.46<span>×</span></strong><span>the gain of the strongest black-box OPD baseline</span></p><a href="#evidence">Compare the methods <span aria-hidden="true">↗</span></a></div>
+  <div class="paper-identity"><p>Communicative On-Policy Distillation: Distilling Black-Box Teacher Capabilities through Communication for Long-Horizon Tasks</p><div class="authors">Lirui Luo · Kelong Mao · Xinwei Yang · Rongqing Li · Luyu Chen · Kieran Wong · Yudong Guo · Xinrui Wang · Jiayin Zhu · Gu Simiu · Sulong Xu · Cong Fang</div><p class="affiliations">Peking University · JD.com · Sichuan University · Beijing Institute of Technology · Renmin University of China · The Hong Kong University of Science and Technology</p></div>
+</section>
+
+<section class="section idea" id="idea"><div class="wrap">
+  <div class="section-head"><p class="section-label">The research question</p><h2>Advice is easy to get.<br>Keeping it is not.</h2><p class="section-intro">A student can finish a task with a teacher on the line and still fail the same task alone. COPD treats both halves as one problem.</p></div>
+  <div class="two-sided">
+    <article><span class="side-label">First challenge</span><h3>When should it ask,<br>and what should it say?</h3><p>In a long task neither the moment of need nor the information worth sharing can be specified in advance. The student has to decide both while it acts.</p><div class="sample-strip"><code>when</code><span>+</span><code>what</code><span>+</span><code>free text</code></div></article>
+    <article><span class="side-label">Second challenge</span><h3>Does a successful<br>consultation transfer?</h3><p>Finishing a task with help does not mean the student can repeat it unaided. The advice has to end up inside the policy, not beside it.</p><div class="sample-strip"><code>success with help</code><span>→</span><code>success alone</code></div></article>
+  </div>
+  <div class="idea-answer"><svg viewBox="0 0 26 30" aria-hidden="true"><path d="M3 1h13l7 7v21H3zM16 1v8h7M8 15h10M8 20h8"/></svg><div><h3>Communication becomes the distillation channel.</h3><p>The adviser only returns text, so no logits are needed. Because the student asks on its own, the exchange is also usable as on-policy supervision for what the student actually tried.</p></div></div>
+</div></section>
+
+<section class="section wrap" id="method">
+  <div class="section-head"><p class="section-label">COPD · the method</p><h2>Collect what worked.<br>Score fresh attempts with it.</h2><p class="section-intro">One policy decides when to talk and what to do. Successful consulted trajectories come back as privileged context for the student's own new responses.</p></div>
+  <div class="learning-loop">
+    <article class="loop-step"><span class="step-num">01</span><h3>Ask</h3><p>During training the student may spend a step on a request instead of an environment action.</p><pre><code>a_t ∈ A_env ∪ A_comm
+u_t ~ π_θ(· | h_t)</code></pre><span class="step-note">Free text, no templates or fixed schedule</span></article><span class="loop-arrow" aria-hidden="true">→</span>
+    <article class="loop-step"><span class="step-num">02</span><h3>Keep the successes</h3><p>Only trajectories that pass the native task check and actually used the adviser enter the reference corpus.</p><div class="token-line"><span>requests</span><span>replies</span><span>actions</span><span>observations</span></div><span class="step-note">Environment-verified, student-generated</span></article><span class="loop-arrow" aria-hidden="true">→</span>
+    <article class="loop-step"><span class="step-num">03</span><h3>Distill on-policy</h3><p>Two views of the same weights score a fresh adviser-free prefix; only the privileged view sees the successful trajectory.</p><div class="signal">log p<sub>privileged</sub> − log p<sub>deployable</sub></div><span class="step-note">Jointly with task-reward PPO</span></article>
+  </div>
+  <div class="method-bottom"><p><strong>No teacher logits.</strong> The adviser answers in text and never acts in the environment, so the method applies to any chat-only black-box model.</p><p><strong>No separate asker.</strong> Communication and task behaviour share one parameter set, trained from the same environment return.</p></div>
+  <details class="figure-details"><summary>Open the training framework <span>↗</span></summary><figure><a href="assets/architecture.png"><img src="assets/architecture.png" alt="COPD pipeline: consulted episodes enter a reference corpus, fresh adviser-free attempts are scored by a privileged view, and the update is combined with task-reward PPO." loading="lazy"></a><figcaption>Paper Figure 2.</figcaption></figure></details>
+</section>
+
+<section class="section results-section" id="evidence"><div class="wrap">
+  <div class="section-head"><p class="section-label">The result</p><h2>Best average of the 4B systems<br>without an adviser.</h2><p class="section-intro">Every policy is scored with adviser access disabled on the same 128-task panels. CAMP-I is the task-reward reference; ActionOPD is the strongest black-box OPD baseline.</p></div>
+  <div class="results-layout"><figure class="main-chart"><figcaption>CAMG-II average score <span>Higher is better · 0–100</span></figcaption>
+    <div class="hbar ours"><span class="hbar-name">COPD (ours)</span><div class="hbar-track" aria-hidden="true"><i style="width:59.80000%"></i></div><strong>59.8</strong></div>
+    <div class="hbar"><span class="hbar-name">CAMP-I</span><div class="hbar-track" aria-hidden="true"><i style="width:54.20000%"></i></div><strong>54.2</strong></div>
+    <div class="hbar"><span class="hbar-name">ActionOPD</span><div class="hbar-track" aria-hidden="true"><i style="width:51.20000%"></i></div><strong>51.2</strong></div>
+    <div class="hbar"><span class="hbar-name">ROPD</span><div class="hbar-track" aria-hidden="true"><i style="width:49.60000%"></i></div><strong>49.6</strong></div>
+    <div class="hbar"><span class="hbar-name">OmniOPD</span><div class="hbar-track" aria-hidden="true"><i style="width:49.10000%"></i></div><strong>49.1</strong></div>
+    <div class="hbar"><span class="hbar-name">GAD (w/ warm-up)</span><div class="hbar-track" aria-hidden="true"><i style="width:48.90000%"></i></div><strong>48.9</strong></div>
+    <div class="hbar"><span class="hbar-name">OLIVE</span><div class="hbar-track" aria-hidden="true"><i style="width:47.20000%"></i></div><strong>47.2</strong></div>
+    <div class="hbar"><span class="hbar-name">Frozen 4B</span><div class="hbar-track" aria-hidden="true"><i style="width:45.30000%"></i></div><strong>45.3</strong></div>
+    <div class="chart-axis"><span>0</span><span>20</span><span>40</span><span>60</span><span>80</span></div></figure>
+    <aside class="result-reading"><div class="ratio"><strong>2.46<span>×</span></strong><h3>the gain, not the final score.</h3><p>COPD-4B gains 14.5 points over its starting checkpoint. ActionOPD, the strongest black-box baseline, gains 5.9.</p></div>
+      <p class="small">Scaling the same recipe to a 9B student reaches 61.3. The teacher's own direct execution is 80.7.</p>
+    </aside></div>
+  <details class="data-details"><summary>All five domains <span>+</span></summary><div class="table-scroll" tabindex="0" role="region" aria-label="Per-domain results"><table><caption>Paper Table 1 · adviser-free task success (%)</caption><thead><tr><th scope="col">Policy</th><th scope="col">Shop</th><th scope="col">Coding</th><th scope="col">AutoResearch</th><th scope="col">General</th><th scope="col">Visual</th><th scope="col">Avg.</th></tr></thead><tbody>
+    <tr><td>Frozen Qwen3.5-4B</td><td>77.3</td><td>27.3</td><td>46.1</td><td>39.8</td><td>36.0</td><td>45.3</td></tr>
+    <tr><td>CAMP-I</td><td>85.2</td><td>32.0</td><td>38.3</td><td>68.8</td><td>46.5</td><td>54.2</td></tr>
+    <tr><td>ActionOPD</td><td>93.0</td><td>24.2</td><td>41.4</td><td>58.6</td><td>40.0</td><td>51.2</td></tr>
+    <tr><td>ROPD</td><td>73.4</td><td>27.3</td><td>43.0</td><td>63.3</td><td>40.8</td><td>49.6</td></tr>
+    <tr><td>OmniOPD</td><td>80.5</td><td>25.8</td><td>43.0</td><td>55.5</td><td>40.8</td><td>49.1</td></tr>
+    <tr><td>GAD (w/ warm-up)</td><td>85.2</td><td>22.7</td><td>39.8</td><td>57.8</td><td>39.0</td><td>48.9</td></tr>
+    <tr><td>OLIVE</td><td>79.7</td><td>24.2</td><td>39.8</td><td>53.1</td><td>39.0</td><td>47.2</td></tr>
+    <tr><td><strong>COPD-4B</strong></td><td>92.2</td><td>36.7</td><td>55.5</td><td>66.4</td><td>48.2</td><td><strong>59.8</strong></td></tr>
+    <tr><td><strong>COPD-9B</strong></td><td>93.0</td><td>38.3</td><td>57.0</td><td>68.8</td><td>49.4</td><td><strong>61.3</strong></td></tr>
+    <tr><td>Teacher (direct)</td><td>100.0</td><td>78.1</td><td>83.6</td><td>91.4</td><td>50.4</td><td>80.7</td></tr>
+    </tbody></table></div></details>
+  <div class="domain-section"><div class="subsection-head"><h3>Where does the gain land?</h3><p>Against CAMP-I, the largest gain is AutoResearch (+17.2) and the largest loss is Shop (−0.8 against ActionOPD).</p></div>
+    <div class="domain-bars">
+      <div class="domain"><h4>Shop</h4><div class="paired-bars"><div><span>85.2</span><i style="height:123.5px" class="camp1"></i></div><div><span>92.2</span><i style="height:133.7px" class="camp2"></i></div></div><p class="delta">+7.0 pts</p></div>
+      <div class="domain"><h4>Coding</h4><div class="paired-bars"><div><span>32.0</span><i style="height:46.4px" class="camp1"></i></div><div><span>36.7</span><i style="height:53.2px" class="camp2"></i></div></div><p class="delta">+4.7 pts</p></div>
+      <div class="domain"><h4>AutoResearch</h4><div class="paired-bars"><div><span>38.3</span><i style="height:55.5px" class="camp1"></i></div><div><span>55.5</span><i style="height:80.5px" class="camp2"></i></div></div><p class="delta">+17.2 pts</p></div>
+      <div class="domain"><h4>General</h4><div class="paired-bars"><div><span>68.8</span><i style="height:99.8px" class="camp1"></i></div><div><span>66.4</span><i style="height:96.3px" class="camp2"></i></div></div><p class="delta negative">−2.4 pts</p></div>
+      <div class="domain"><h4>Visual</h4><div class="paired-bars"><div><span>46.5</span><i style="height:67.4px" class="camp1"></i></div><div><span>48.2</span><i style="height:69.9px" class="camp2"></i></div></div><p class="delta">+1.7 pts</p></div>
+    </div><p class="chart-caption"><span class="dot pale"></span>CAMP-I <span class="dot blue"></span>COPD-4B <span>Visual is a judged grade, not a binary success rate.</span></p>
+  </div>
+</div></section>
+
+<section class="section wrap" id="why"><div class="section-head"><p class="section-label">Understanding the result</p><h2>Having a channel is not<br>the same as learning.</h2><p class="section-intro">Three checks separate the pieces: access to the adviser, the content of its replies, and the components of the update.</p></div>
+  <div class="diagnostic-grid">
+    <figure><figcaption><b>Without the adviser, the level holds only for COPD.</b><span>Same policy, adviser removed and available</span></figcaption>
+      <div class="hbar ours"><span class="hbar-name">COPD-4B</span><div class="hbar-track" aria-hidden="true"><i style="width:61.40000%"></i></div><strong>59.8 → 61.4</strong></div>
+      <div class="hbar"><span class="hbar-name">w/o OPSD</span><div class="hbar-track" aria-hidden="true"><i style="width:62.40000%"></i></div><strong>47.5 → 62.4</strong></div>
+      <div class="hbar"><span class="hbar-name">Initial student</span><div class="hbar-track" aria-hidden="true"><i style="width:55.10000%"></i></div><strong>45.3 → 55.1</strong></div>
+      <p class="small">Access is worth 1.6 points to COPD-4B, 9.8 to the untrained student and 14.9 to the variant trained without the update.</p></figure>
+    <figure><figcaption><b>The words matter, and they have to fit the task.</b><span>Full reference, replies removed, replies moved</span></figcaption>
+      <div class="hbar ours"><span class="hbar-name">Full reference</span><div class="hbar-track" aria-hidden="true"><i style="width:59.80000%"></i></div><strong>59.8</strong></div>
+      <div class="hbar"><span class="hbar-name">Replies removed</span><div class="hbar-track" aria-hidden="true"><i style="width:56.90000%"></i></div><strong>56.9</strong></div>
+      <div class="hbar"><span class="hbar-name">Replies moved</span><div class="hbar-track" aria-hidden="true"><i style="width:54.60000%"></i></div><strong>54.6</strong></div>
+      <p class="small">Deleting the replies costs 2.9 points; moving them to another task costs 5.2.</p></figure>
+  </div>
+  <div class="ablation-layout"><div><h3>Every component carries part of the gain.</h3><p>Removing the distillation update costs the most. Neither the communication channel alone nor imitation of the same trajectories recovers the full recipe.</p></div>
+    <figure><figcaption>Ablations <span>Adviser-free average</span></figcaption>
+      <div class="hbar ours"><span class="hbar-name">COPD</span><div class="hbar-track" aria-hidden="true"><i style="width:59.80000%"></i></div><strong>59.8</strong></div>
+      <div class="hbar"><span class="hbar-name">w/o OPSD</span><div class="hbar-track" aria-hidden="true"><i style="width:47.50000%"></i></div><strong>47.5</strong></div>
+      <div class="hbar"><span class="hbar-name">w/o communication</span><div class="hbar-track" aria-hidden="true"><i style="width:52.10000%"></i></div><strong>52.1</strong></div>
+      <div class="hbar"><span class="hbar-name">w/ SFT instead of OPSD</span><div class="hbar-track" aria-hidden="true"><i style="width:55.40000%"></i></div><strong>55.4</strong></div></figure></div>
+</section>
+
+<section class="section case-section" id="case"><div class="wrap"><div class="case-intro"><div><p class="section-label">A recorded consultation</p><h2>The same brief,<br>delivered twice.</h2></div><div><p>A Visual task asks for a two-day training-event page. The trained policy delivers it once with an adviser mounted and advertised, and once with the channel removed.</p><p>The two pages differ in detail and agree in structure: the behaviour the consultation established does not depend on reaching an adviser at test time.</p></div></div>
+  <details class="figure-details" open><summary>Both deliveries <span>↗</span></summary><figure><a href="assets/case_study.png"><img src="assets/case_study.png" alt="Two deliveries of the same Visual brief by the trained policy, one with the adviser available and one with the channel removed." loading="lazy"></a><figcaption>Paper Figure 8.</figcaption></figure></details>
+</div></section>
+
+<section class="section transfer-section" id="transfer"><div class="wrap"><div class="section-head"><p class="section-label">Beyond the training suite</p><h2>Both students improve<br>on both benchmarks.</h2><p class="section-intro">Evaluated without an adviser on Terminal-Bench 2.1 and SWE-Bench Pro V2. The 9B policy closes to within 0.3 points of a larger same-generation model on the two-suite average.</p></div>
+  <div class="transfer-charts"><figure><figcaption>Terminal-Bench 2.1<span>Resolution rate (%) · axis 0–50</span></figcaption>
+    <div class="transfer-pair"><span class="model-scale">4B</span><div><div class="hbar"><span class="hbar-name">Initial model</span><div class="hbar-track" aria-hidden="true"><i style="width:46.20000%"></i></div><strong>23.1</strong></div><div class="hbar ours"><span class="hbar-name">COPD</span><div class="hbar-track" aria-hidden="true"><i style="width:56.00000%"></i></div><strong>28.0</strong></div></div></div>
+    <div class="transfer-pair"><span class="model-scale">9B</span><div><div class="hbar"><span class="hbar-name">Initial model</span><div class="hbar-track" aria-hidden="true"><i style="width:46.20000%"></i></div><strong>23.1</strong></div><div class="hbar ours"><span class="hbar-name">COPD</span><div class="hbar-track" aria-hidden="true"><i style="width:66.00000%"></i></div><strong>33.0</strong></div></div></div>
+    <p class="small">Larger same-generation reference: Qwen3.5-35B-A3B at 33.8.</p></figure>
+  <figure><figcaption>SWE-Bench Pro V2<span>Resolution rate (%) · axis 0–50</span></figcaption>
+    <div class="transfer-pair"><span class="model-scale">4B</span><div><div class="hbar"><span class="hbar-name">Initial model</span><div class="hbar-track" aria-hidden="true"><i style="width:22.40000%"></i></div><strong>11.2</strong></div><div class="hbar ours"><span class="hbar-name">COPD</span><div class="hbar-track" aria-hidden="true"><i style="width:33.00000%"></i></div><strong>16.5</strong></div></div></div>
+    <div class="transfer-pair"><span class="model-scale">9B</span><div><div class="hbar"><span class="hbar-name">Initial model</span><div class="hbar-track" aria-hidden="true"><i style="width:46.20000%"></i></div><strong>23.1</strong></div><div class="hbar ours"><span class="hbar-name">COPD</span><div class="hbar-track" aria-hidden="true"><i style="width:55.00000%"></i></div><strong>27.5</strong></div></div></div>
+    <p class="small">Larger same-generation reference: Qwen3.5-35B-A3B at 27.4.</p></figure></div>
+</div></section>
+
+<section class="section wrap resources" id="paper"><div><p class="section-label">Paper & citation</p><h2>Talk to the teacher.<br>Keep the lesson.</h2><p class="section-intro">COPD makes the student's own consultation the unit of distillation, so a chat-only teacher is enough.</p></div>
+  <div class="resource-links"><a href="assets/paper.pdf">PDF <span aria-hidden="true">↗</span></a><span class="release-note">Code will be released after the review period.</span></div>
+  <details class="citation"><summary>BibTeX <span>+</span></summary><pre id="citation-text">@article{luo2026copd,
+  title = {Communicative On-Policy Distillation: Distilling Black-Box Teacher Capabilities through Communication for Long-Horizon Tasks},
+  author = {Lirui Luo and Kelong Mao and Xinwei Yang and Rongqing Li and Luyu Chen and Kevin Wong and Yudong Guo and Xinrui Wang and Jiayin Zhu and Gu Simiu and Sulong Xu and Cong Fang},
+  year = {2026}
+}</pre><button id="copy-citation" class="button secondary" type="button">Copy BibTeX</button><span id="copy-status" role="status"></span></details>
+</section>
+</main>
+<footer class="wrap"><a class="brand" href="#top">COPD</a><span>Communication → distillation → independent execution</span><a href="#top">Back to top ↑</a></footer>
+</body></html>
