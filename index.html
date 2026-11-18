@@ -86,7 +86,7 @@ u_t ~ π_θ(· | h_t)</code></pre><span class="step-note">Free text, no template
     <tr><td><strong>COPD-9B</strong></td><td>93.0</td><td>38.3</td><td>57.0</td><td>68.8</td><td>49.4</td><td><strong>61.3</strong></td></tr>
     <tr><td>Teacher (direct)</td><td>100.0</td><td>78.1</td><td>83.6</td><td>91.4</td><td>50.4</td><td>80.7</td></tr>
     </tbody></table></div></details>
-  <div class="domain-section"><div class="subsection-head"><h3>Where does the gain land?</h3><p>Against CAMP-I, the largest gain is AutoResearch (+17.2) and the largest loss is Shop (−0.8 against ActionOPD).</p></div>
+  <div class="domain-section"><div class="subsection-head"><h3>Where does the gain land?</h3><p>Against CAMP-I, the bars gain 17.2 points on AutoResearch and lose 2.4 on General, where CAMP-I stays ahead.</p></div>
     <div class="domain-bars">
       <div class="domain"><h4>Shop</h4><div class="paired-bars"><div><span>85.2</span><i style="height:123.5px" class="camp1"></i></div><div><span>92.2</span><i style="height:133.7px" class="camp2"></i></div></div><p class="delta">+7.0 pts</p></div>
       <div class="domain"><h4>Coding</h4><div class="paired-bars"><div><span>32.0</span><i style="height:46.4px" class="camp1"></i></div><div><span>36.7</span><i style="height:53.2px" class="camp2"></i></div></div><p class="delta">+4.7 pts</p></div>
@@ -99,11 +99,11 @@ u_t ~ π_θ(· | h_t)</code></pre><span class="step-note">Free text, no template
 
 <section class="section wrap" id="why"><div class="section-head"><p class="section-label">Understanding the result</p><h2>Having a channel is not<br>the same as learning.</h2><p class="section-intro">Three checks separate the pieces: access to the adviser, the content of its replies, and the components of the update.</p></div>
   <div class="diagnostic-grid">
-    <figure><figcaption><b>Without the adviser, the level holds only for COPD.</b><span>Same policy, adviser removed and available</span></figcaption>
-      <div class="hbar ours"><span class="hbar-name">COPD-4B</span><div class="hbar-track" aria-hidden="true"><i style="width:61.40000%"></i></div><strong>59.8 → 61.4</strong></div>
-      <div class="hbar"><span class="hbar-name">w/o OPSD</span><div class="hbar-track" aria-hidden="true"><i style="width:62.40000%"></i></div><strong>47.5 → 62.4</strong></div>
-      <div class="hbar"><span class="hbar-name">Initial student</span><div class="hbar-track" aria-hidden="true"><i style="width:55.10000%"></i></div><strong>45.3 → 55.1</strong></div>
-      <p class="small">Access is worth 1.6 points to COPD-4B, 9.8 to the untrained student and 14.9 to the variant trained without the update.</p></figure>
+    <figure><figcaption><b>Without the adviser, the level holds only for COPD.</b><span>Gain from adviser access · bars show the adviser-available score</span></figcaption>
+      <div class="hbar ours"><span class="hbar-name">COPD-4B</span><div class="hbar-track" aria-hidden="true"><i style="width:61.40000%"></i></div><strong>+1.6</strong></div>
+      <div class="hbar"><span class="hbar-name">w/o OPSD</span><div class="hbar-track" aria-hidden="true"><i style="width:62.40000%"></i></div><strong>+14.9</strong></div>
+      <div class="hbar"><span class="hbar-name">Initial student</span><div class="hbar-track" aria-hidden="true"><i style="width:55.10000%"></i></div><strong>+9.8</strong></div>
+      <p class="small">Adviser-free scores: COPD-4B 59.8, w/o OPSD 47.5, initial student 45.3.</p></figure>
     <figure><figcaption><b>The words matter, and they have to fit the task.</b><span>Full reference, replies removed, replies moved</span></figcaption>
       <div class="hbar ours"><span class="hbar-name">Full reference</span><div class="hbar-track" aria-hidden="true"><i style="width:59.80000%"></i></div><strong>59.8</strong></div>
       <div class="hbar"><span class="hbar-name">Replies removed</span><div class="hbar-track" aria-hidden="true"><i style="width:56.90000%"></i></div><strong>56.9</strong></div>
